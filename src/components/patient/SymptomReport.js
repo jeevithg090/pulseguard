@@ -25,7 +25,22 @@ import {
   IconButton,
   Tooltip,
   Divider,
+  Stepper,
+  Step,
+  StepLabel,
+  CircularProgress,
+  Avatar,
+  Badge,
 } from '@mui/material';
+import {
+  Timeline,
+  TimelineItem,
+  TimelineSeparator,
+  TimelineConnector,
+  TimelineContent,
+  TimelineDot,
+  TimelineOppositeContent,
+} from '@mui/lab';
 import {
   Warning as WarningIcon,
   Error as ErrorIcon,
@@ -35,6 +50,10 @@ import {
   AccessTime as AccessTimeIcon,
   LocalHospital as HospitalIcon,
   Save as SaveIcon,
+  TrendingUp as TrendingUpIcon,
+  TrendingDown as TrendingDownIcon,
+  Timeline as TimelineIcon,
+  History as HistoryIcon,
 } from '@mui/icons-material';
 
 // Common symptoms with severity thresholds
@@ -72,6 +91,9 @@ const SymptomReport = () => {
   const [showSummary, setShowSummary] = useState(false);
   const [suggestedSymptoms, setSuggestedSymptoms] = useState([]);
   const [flaggedIssues, setFlaggedIssues] = useState([]);
+  const [activeStep, setActiveStep] = useState(0);
+  const [symptomHistory, setSymptomHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
 
   // Track symptom severity and duration
   const [severity, setSeverity] = useState({});
@@ -134,6 +156,185 @@ const SymptomReport = () => {
     setSuggestedSymptoms(suggestions);
   }, [selectedSymptoms]);
 
+  // Handle step change
+  const handleNext = () => {
+    setActiveStep((prevStep) => prevStep + 1);
+  };
+
+  const handleBack = () => {
+    setActiveStep((prevStep) => prevStep - 1);
+  };
+
+  // Update symptom history
+  useEffect(() => {
+    if (selectedSymptoms.length > 0) {
+      const newHistory = selectedSymptoms.map(symptom => {
+        const details = symptomDetails[symptom];
+        const symptomData = commonSymptoms.find(s => s.id === symptom);
+        return {
+          id: Date.now(),
+          symptom: symptomData?.label || symptom,
+          severity: details?.severity || 1,
+          duration: details?.duration || 1,
+          unit: details?.unit || 'hours',
+          timestamp: new Date().toISOString(),
+        };
+      });
+      setSymptomHistory(prev => [...prev, ...newHistory]);
+    }
+  }, [selectedSymptoms, symptomDetails]);
+
+  const steps = [
+    'Select Symptoms',
+    'Rate Severity',
+    'Add Details',
+    'Review & Submit'
+  ];
+
+  const getStepContent = (step) => {
+    switch (step) {
+      case 0:
+        return (
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              Select Your Symptoms
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+              {commonSymptoms.map((symptom) => (
+                <Chip
+                  key={symptom.id}
+                  label={symptom.label}
+                  onClick={() => handleSymptomSelect(symptom.id)}
+                  onDelete={selectedSymptoms.includes(symptom.id) ? () => handleSymptomRemove(symptom.id) : undefined}
+                  color={selectedSymptoms.includes(symptom.id) ? 'primary' : 'default'}
+                  variant={selectedSymptoms.includes(symptom.id) ? 'filled' : 'outlined'}
+                  sx={{
+                    '&:hover': {
+                      transform: 'scale(1.05)',
+                      transition: 'transform 0.2s',
+                    },
+                  }}
+                />
+              ))}
+            </Box>
+          </Box>
+        );
+      case 1:
+        return (
+          <Box>
+            {selectedSymptoms.map((symptom) => {
+              const details = symptomDetails[symptom] || { severity: 1, duration: 1, unit: 'hours' };
+              return (
+                <Paper key={symptom} sx={{ p: 3, mb: 2 }}>
+                  <Typography variant="h6" gutterBottom>
+                    {commonSymptoms.find(s => s.id === symptom)?.label || symptom}
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Typography>Severity</Typography>
+                    <Slider
+                      value={details.severity}
+                      onChange={(e, value) => handleSeverityChange(symptom, value)}
+                      min={1}
+                      max={10}
+                      marks
+                      valueLabelDisplay="auto"
+                      sx={{
+                        '& .MuiSlider-thumb': {
+                          width: 24,
+                          height: 24,
+                          backgroundColor: details.severity >= 8 ? '#d32f2f' : 
+                                        details.severity >= 5 ? '#ed6c02' : '#2e7d32',
+                        },
+                      }}
+                    />
+                  </Box>
+                </Paper>
+              );
+            })}
+          </Box>
+        );
+      case 2:
+        return (
+          <Box>
+            {selectedSymptoms.map((symptom) => {
+              const details = symptomDetails[symptom] || { severity: 1, duration: 1, unit: 'hours' };
+              return (
+                <Paper key={symptom} sx={{ p: 3, mb: 2 }}>
+                  <Typography variant="h6" gutterBottom>
+                    {commonSymptoms.find(s => s.id === symptom)?.label || symptom}
+                  </Typography>
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} md={6}>
+                      <Typography gutterBottom>Duration</Typography>
+                      <Box sx={{ display: 'flex', gap: 2 }}>
+                        <TextField
+                          type="number"
+                          value={details.duration}
+                          onChange={(e) => handleDurationChange(symptom, parseInt(e.target.value), details.unit)}
+                          sx={{ width: '100px' }}
+                        />
+                        <FormControl sx={{ minWidth: 120 }}>
+                          <Select
+                            value={details.unit}
+                            onChange={(e) => handleDurationChange(symptom, details.duration, e.target.value)}
+                          >
+                            {durationOptions.map((option) => (
+                              <MenuItem key={option.value} value={option.value}>
+                                {option.label}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </Box>
+                    </Grid>
+                  </Grid>
+                </Paper>
+              );
+            })}
+          </Box>
+        );
+      case 3:
+        return (
+          <Box>
+            <Typography variant="h6" gutterBottom>
+              Review Your Symptoms
+            </Typography>
+            {selectedSymptoms.map((symptom) => {
+              const details = symptomDetails[symptom] || { severity: 1, duration: 1, unit: 'hours' };
+              const isFlagged = flaggedIssues.includes(symptom);
+              return (
+                <Paper key={symptom} sx={{ p: 3, mb: 2 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="h6">
+                      {commonSymptoms.find(s => s.id === symptom)?.label || symptom}
+                    </Typography>
+                    <Badge
+                      badgeContent={isFlagged ? '!' : null}
+                      color={isFlagged ? 'error' : 'default'}
+                    >
+                      <Avatar
+                        sx={{
+                          bgcolor: details.severity >= 8 ? '#d32f2f' : 
+                                  details.severity >= 5 ? '#ed6c02' : '#2e7d32',
+                        }}
+                      >
+                        {details.severity}
+                      </Avatar>
+                    </Badge>
+                  </Box>
+                  <Typography variant="body2" color="text.secondary">
+                    Duration: {details.duration} {details.unit}
+                  </Typography>
+                </Paper>
+              );
+            })}
+          </Box>
+        );
+      default:
+        return 'Unknown step';
+    }
+  };
+
   // Handle form submission
   const handleSubmit = () => {
     setShowSummary(true);
@@ -152,150 +353,78 @@ const SymptomReport = () => {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Paper elevation={3} sx={{ p: 4 }}>
-        <Typography variant="h4" gutterBottom>
-          Report Your Symptoms
-        </Typography>
-
-        {/* Common Symptoms Selection */}
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h6" gutterBottom>
-            Select Your Symptoms
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+          <Typography variant="h4">
+            Report Your Symptoms
           </Typography>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-            {commonSymptoms.map((symptom) => (
-              <Chip
-                key={symptom.id}
-                label={symptom.label}
-                onClick={() => handleSymptomSelect(symptom.id)}
-                onDelete={selectedSymptoms.includes(symptom.id) ? () => handleSymptomRemove(symptom.id) : undefined}
-                color={selectedSymptoms.includes(symptom.id) ? 'primary' : 'default'}
-                variant={selectedSymptoms.includes(symptom.id) ? 'filled' : 'outlined'}
-              />
-            ))}
-          </Box>
+          <IconButton onClick={() => setShowHistory(!showHistory)} color="primary">
+            <HistoryIcon />
+          </IconButton>
         </Box>
 
-        {/* Selected Symptoms Details */}
-        {selectedSymptoms.map((symptom) => {
-          const details = symptomDetails[symptom] || { severity: 1, duration: 1, unit: 'hours' };
-          const symptomData = commonSymptoms.find(s => s.id === symptom);
-          const isFlagged = flaggedIssues.includes(symptom);
+        <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
+          {steps.map((label) => (
+            <Step key={label}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
 
-          return (
-            <Paper key={symptom} sx={{ p: 3, mb: 2, position: 'relative' }}>
-              {isFlagged && (
-                <Alert
-                  severity={details.severity >= symptomData.urgent ? 'error' : 'warning'}
-                  sx={{ mb: 2 }}
-                >
-                  {details.severity >= symptomData.urgent
-                    ? 'This symptom requires immediate attention'
-                    : 'Please monitor this symptom closely'}
-                </Alert>
-              )}
-              
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6">
-                  {symptomData?.label || symptom}
-                </Typography>
-                <IconButton onClick={() => handleSymptomRemove(symptom)}>
-                  <DeleteIcon />
-                </IconButton>
-              </Box>
+        {getStepContent(activeStep)}
 
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
-                  <Typography gutterBottom>Severity (1-10)</Typography>
-                  <Slider
-                    value={details.severity}
-                    onChange={(e, value) => handleSeverityChange(symptom, value)}
-                    min={1}
-                    max={10}
-                    marks
-                    valueLabelDisplay="auto"
-                  />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Typography gutterBottom>Duration</Typography>
-                  <Box sx={{ display: 'flex', gap: 2 }}>
-                    <TextField
-                      type="number"
-                      value={details.duration}
-                      onChange={(e) => handleDurationChange(symptom, parseInt(e.target.value), details.unit)}
-                      sx={{ width: '100px' }}
-                    />
-                    <FormControl sx={{ minWidth: 120 }}>
-                      <Select
-                        value={details.unit}
-                        onChange={(e) => handleDurationChange(symptom, details.duration, e.target.value)}
-                      >
-                        {durationOptions.map((option) => (
-                          <MenuItem key={option.value} value={option.value}>
-                            {option.label}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Box>
-                </Grid>
-              </Grid>
-            </Paper>
-          );
-        })}
-
-        {/* Suggested Symptoms */}
-        {suggestedSymptoms.length > 0 && (
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h6" gutterBottom>
-              Suggested Additional Symptoms
-            </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-              {suggestedSymptoms.map((symptom) => (
-                <Chip
-                  key={symptom}
-                  label={symptom}
-                  onClick={() => handleSymptomSelect(symptom.toLowerCase().replace(/\s+/g, '_'))}
-                  variant="outlined"
-                />
-              ))}
-            </Box>
-          </Box>
-        )}
-
-        {/* Additional Notes */}
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h6" gutterBottom>
-            Additional Notes
-          </Typography>
-          <TextField
-            fullWidth
-            multiline
-            rows={4}
-            value={additionalNotes}
-            onChange={(e) => setAdditionalNotes(e.target.value)}
-            placeholder="Add any additional details about your symptoms..."
-          />
-        </Box>
-
-        {/* Action Buttons */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
           <Button
-            variant="outlined"
-            startIcon={<SaveIcon />}
-            onClick={handleSave}
+            disabled={activeStep === 0}
+            onClick={handleBack}
           >
-            Save for Later
+            Back
           </Button>
           <Button
             variant="contained"
             color="primary"
-            onClick={handleSubmit}
+            onClick={activeStep === steps.length - 1 ? handleSubmit : handleNext}
             disabled={selectedSymptoms.length === 0}
           >
-            Submit & Review
+            {activeStep === steps.length - 1 ? 'Submit' : 'Next'}
           </Button>
         </Box>
       </Paper>
+
+      {/* Symptom History Dialog */}
+      <Dialog
+        open={showHistory}
+        onClose={() => setShowHistory(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>Symptom History</DialogTitle>
+        <DialogContent>
+          <Timeline>
+            {symptomHistory.map((entry, index) => (
+              <TimelineItem key={entry.id}>
+                <TimelineOppositeContent color="text.secondary">
+                  {new Date(entry.timestamp).toLocaleTimeString()}
+                </TimelineOppositeContent>
+                <TimelineSeparator>
+                  <TimelineDot color={entry.severity >= 8 ? 'error' : entry.severity >= 5 ? 'warning' : 'success'}>
+                    {entry.severity}
+                  </TimelineDot>
+                  {index < symptomHistory.length - 1 && <TimelineConnector />}
+                </TimelineSeparator>
+                <TimelineContent>
+                  <Typography variant="subtitle1">{entry.symptom}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Duration: {entry.duration} {entry.unit}
+                  </Typography>
+                </TimelineContent>
+              </TimelineItem>
+            ))}
+          </Timeline>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowHistory(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Summary Dialog */}
       <Dialog
@@ -366,6 +495,60 @@ const SymptomReport = () => {
               </ListItem>
             )}
           </List>
+
+          <Box sx={{ mt: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              Symptom Trends
+            </Typography>
+            <Grid container spacing={2}>
+              {selectedSymptoms.map((symptom) => {
+                const details = symptomDetails[symptom] || { severity: 1, duration: 1, unit: 'hours' };
+                const history = symptomHistory.filter(h => h.symptom === symptom);
+                const trend = history.length > 1 ? 
+                  (history[history.length - 1].severity - history[0].severity) : 0;
+                
+                return (
+                  <Grid item xs={12} sm={6} key={symptom}>
+                    <Paper sx={{ p: 2 }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="subtitle1">
+                          {commonSymptoms.find(s => s.id === symptom)?.label || symptom}
+                        </Typography>
+                        {trend !== 0 && (
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            {trend > 0 ? <TrendingUpIcon color="error" /> : <TrendingDownIcon color="success" />}
+                            <Typography variant="body2" color={trend > 0 ? 'error' : 'success'}>
+                              {Math.abs(trend)} points
+                            </Typography>
+                          </Box>
+                        )}
+                      </Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                        <CircularProgress
+                          variant="determinate"
+                          value={details.severity * 10}
+                          size={40}
+                          thickness={4}
+                          sx={{
+                            color: details.severity >= 8 ? '#d32f2f' : 
+                                  details.severity >= 5 ? '#ed6c02' : '#2e7d32',
+                          }}
+                        />
+                        <Box sx={{ ml: 2 }}>
+                          <Typography variant="body2">
+                            Current Severity: {details.severity}/10
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Duration: {details.duration} {details.unit}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Paper>
+                  </Grid>
+                );
+              })}
+            </Grid>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowSummary(false)}>Close</Button>
