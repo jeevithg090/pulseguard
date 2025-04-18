@@ -15,6 +15,7 @@ import SymptomReport from './components/patient/SymptomReport';
 import HealthcareFacilitySearch from './components/patient/HealthcareFacilitySearch';
 import FollowUpReminders from './components/patient/FollowUpReminders';
 import AppointmentBooking from './components/patient/AppointmentBooking';
+import AllMessages from './components/patient/AllMessages';
 
 // Hospital Interface Components
 import HospitalDashboard from './components/hospital/Dashboard';
@@ -39,20 +40,77 @@ const theme = createTheme({
       default: '#f5f5f5',
       paper: '#ffffff',
     },
+    error: {
+      main: '#d32f2f',
+    },
+    warning: {
+      main: '#ed6c02',
+    },
+    success: {
+      main: '#2e7d32',
+    },
+    info: {
+      main: '#0288d1',
+    },
   },
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     h1: {
       fontSize: '2.5rem',
       fontWeight: 500,
+      color: '#1a237e',
     },
     h2: {
       fontSize: '2rem',
       fontWeight: 500,
+      color: '#1a237e',
     },
     h3: {
       fontSize: '1.75rem',
       fontWeight: 500,
+      color: '#1a237e',
+    },
+    h4: {
+      fontSize: '1.5rem',
+      fontWeight: 500,
+      color: '#1a237e',
+    },
+    h5: {
+      fontSize: '1.25rem',
+      fontWeight: 500,
+      color: '#1a237e',
+    },
+    h6: {
+      fontSize: '1rem',
+      fontWeight: 500,
+      color: '#1a237e',
+    },
+  },
+  components: {
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          textTransform: 'none',
+          fontWeight: 500,
+        },
+      },
     },
   },
 });
@@ -70,8 +128,9 @@ function App() {
 
             {/* Patient Routes */}
             <Route path="/patient" element={<PatientDashboard />} />
+            <Route path="/patient/messages" element={<AllMessages />} />
             <Route path="/patient/symptoms" element={<SymptomReport />} />
-            <Route path="/patient/care-navigation" element={<HealthcareFacilitySearch />} />
+            <Route path="/patient/facilities" element={<HealthcareFacilitySearch />} />
             <Route path="/patient/reminders" element={<FollowUpReminders />} />
             <Route path="/patient/book-appointment" element={<AppointmentBooking />} />
 
@@ -79,7 +138,7 @@ function App() {
             <Route path="/hospital" element={<HospitalDashboard />} />
             <Route path="/hospital/resources" element={<ResourceAllocation />} />
             <Route path="/hospital/crisis" element={<CrisisPrediction />} />
-            <Route path="/hospital/scheduling" element={<AppointmentScheduling />} />
+            <Route path="/hospital/appointments" element={<AppointmentScheduling />} />
           </Routes>
         </Router>
       </LocalizationProvider>

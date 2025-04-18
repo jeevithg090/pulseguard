@@ -90,6 +90,7 @@ const CareNavigation = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by name or address..."
+                variant="outlined"
               />
             </Grid>
             <Grid item xs={12} md={4}>
@@ -99,6 +100,7 @@ const CareNavigation = () => {
                 label="Facility Type"
                 value={selectedType}
                 onChange={(e) => setSelectedType(e.target.value)}
+                variant="outlined"
                 SelectProps={{
                   native: true,
                 }}
@@ -125,17 +127,17 @@ const CareNavigation = () => {
                   </Typography>
                   
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <LocationOnIcon sx={{ mr: 1 }} />
+                    <LocationOnIcon color="primary" sx={{ mr: 1 }} />
                     <Typography variant="body2">{facility.address}</Typography>
                   </Box>
                   
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <PhoneIcon sx={{ mr: 1 }} />
+                    <PhoneIcon color="primary" sx={{ mr: 1 }} />
                     <Typography variant="body2">{facility.phone}</Typography>
                   </Box>
                   
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <AccessTimeIcon sx={{ mr: 1 }} />
+                    <AccessTimeIcon color="primary" sx={{ mr: 1 }} />
                     <Typography variant="body2">
                       Wait Time: {facility.waitTime}
                     </Typography>
@@ -161,6 +163,7 @@ const CareNavigation = () => {
                   <Button
                     startIcon={<DirectionsIcon />}
                     onClick={() => handleGetDirections(facility.address)}
+                    color="primary"
                   >
                     Get Directions
                   </Button>

@@ -59,6 +59,8 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import HistoryIcon from '@mui/icons-material/History';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import DoctorProfiles from './DoctorProfiles';
 
 // Mock data for doctors and their available slots
 const mockDoctors = [
@@ -153,6 +155,7 @@ const AppointmentBooking = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('card');
   const [showPatientHistory, setShowPatientHistory] = useState(false);
+  const [showDoctorProfiles, setShowDoctorProfiles] = useState(false);
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
@@ -226,237 +229,266 @@ const AppointmentBooking = () => {
           Select your preferred doctor and time slot
         </Typography>
 
-        <Grid container spacing={3}>
-          {/* Appointment Type Selection */}
-          <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 3, mb: 3 }}>
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
-                Appointment Type
-              </Typography>
-              <ToggleButtonGroup
-                value={appointmentType}
-                exclusive
-                onChange={handleAppointmentTypeChange}
-                fullWidth
-                sx={{ mb: 2 }}
-              >
-                <ToggleButton value="in-person">
-                  <PersonIcon sx={{ mr: 1 }} />
-                  In-Person
-                </ToggleButton>
-                <ToggleButton value="video">
-                  <VideoCallIcon sx={{ mr: 1 }} />
-                  Video Consultation
-                </ToggleButton>
-              </ToggleButtonGroup>
+        {!showDoctorProfiles ? (
+          <>
+            <Grid container spacing={3}>
+              {/* Appointment Type Selection */}
+              <Grid item xs={12} md={4}>
+                <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 3, mb: 3 }}>
+                  <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+                    Appointment Type
+                  </Typography>
+                  <ToggleButtonGroup
+                    value={appointmentType}
+                    exclusive
+                    onChange={handleAppointmentTypeChange}
+                    fullWidth
+                    sx={{ mb: 2 }}
+                  >
+                    <ToggleButton value="in-person">
+                      <PersonIcon sx={{ mr: 1 }} />
+                      In-Person
+                    </ToggleButton>
+                    <ToggleButton value="video">
+                      <VideoCallIcon sx={{ mr: 1 }} />
+                      Video Consultation
+                    </ToggleButton>
+                  </ToggleButtonGroup>
 
-              <FormControl fullWidth sx={{ mb: 2 }}>
-                <InputLabel>Consultation Type</InputLabel>
-                <Select
-                  value={consultationType}
-                  label="Consultation Type"
-                  onChange={handleConsultationTypeChange}
-                >
-                  <MenuItem value="regular">Regular Check-up</MenuItem>
-                  <MenuItem value="follow-up">Follow-up</MenuItem>
-                  <MenuItem value="emergency">Emergency</MenuItem>
-                  <MenuItem value="specialist">Specialist Consultation</MenuItem>
-                </Select>
-              </FormControl>
-            </Paper>
-          </Grid>
+                  <FormControl fullWidth sx={{ mb: 2 }}>
+                    <InputLabel>Consultation Type</InputLabel>
+                    <Select
+                      value={consultationType}
+                      label="Consultation Type"
+                      onChange={handleConsultationTypeChange}
+                    >
+                      <MenuItem value="regular">Regular Check-up</MenuItem>
+                      <MenuItem value="follow-up">Follow-up</MenuItem>
+                      <MenuItem value="emergency">Emergency</MenuItem>
+                      <MenuItem value="specialist">Specialist Consultation</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Paper>
+              </Grid>
 
-          {/* Doctor Selection */}
-          <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 3 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
-                  <PersonIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-                  Select Doctor
-                </Typography>
-                <Tooltip title="View Patient History">
-                  <IconButton onClick={togglePatientHistory}>
-                    <HistoryIcon />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-
-              {showPatientHistory && (
-                <Card sx={{ mb: 3, bgcolor: 'background.paper' }}>
-                  <CardContent>
-                    <Typography variant="subtitle1" gutterBottom>
-                      Previous Appointments
+              {/* Doctor Selection */}
+              <Grid item xs={12} md={4}>
+                <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 3 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+                      <PersonIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                      Select Doctor
                     </Typography>
-                    <List>
-                      <ListItem>
-                        <ListItemText
-                          primary="Dr. Smith - Cardiology"
-                          secondary="March 15, 2024 - Regular Check-up"
-                        />
-                      </ListItem>
-                      <ListItem>
-                        <ListItemText
-                          primary="Dr. Johnson - General Medicine"
-                          secondary="February 28, 2024 - Follow-up"
-                        />
-                      </ListItem>
-                    </List>
-                  </CardContent>
-                </Card>
-              )}
-
-              <FormControl fullWidth sx={{ mb: 3 }}>
-                <InputLabel>Doctor</InputLabel>
-                <Select
-                  value={selectedDoctor}
-                  label="Doctor"
-                  onChange={handleDoctorSelect}
-                  MenuProps={{
-                    PaperProps: {
-                      sx: {
-                        maxHeight: 300,
-                      },
-                    },
-                  }}
-                >
-                  {mockDoctors.map((doctor) => (
-                    <MenuItem key={doctor.id} value={doctor.id}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                        <Avatar
-                          src={doctor.image}
-                          sx={{ width: 56, height: 56, mr: 2 }}
-                        />
-                        <Box sx={{ flex: 1 }}>
-                          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                            {doctor.name}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {doctor.specialization}
-                          </Typography>
-                          <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
-                            <Rating
-                              value={doctor.rating}
-                              precision={0.1}
-                              readOnly
-                              size="small"
-                              sx={{ mr: 1 }}
-                            />
-                            <Typography variant="body2" color="text.secondary">
-                              ({doctor.rating})
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </Box>
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              {/* Location Selection */}
-              <FormControl fullWidth sx={{ mb: 3 }}>
-                <InputLabel>Location</InputLabel>
-                <Select
-                  value={selectedLocation}
-                  label="Location"
-                  onChange={handleLocationChange}
-                >
-                  <MenuItem value="main">Main Hospital</MenuItem>
-                  <MenuItem value="branch1">North Branch</MenuItem>
-                  <MenuItem value="branch2">South Branch</MenuItem>
-                  <MenuItem value="branch3">East Branch</MenuItem>
-                </Select>
-              </FormControl>
-
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
-                <CalendarTodayIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-                Select Date
-              </Typography>
-              <DatePicker
-                label="Date"
-                value={selectedDate}
-                onChange={handleDateChange}
-                renderInput={(params) => (
-                  <Box sx={{ mb: 3 }}>
-                    <TextField {...params} fullWidth />
+                    <Box>
+                      <Tooltip title="View Patient History">
+                        <IconButton onClick={togglePatientHistory} sx={{ mr: 1 }}>
+                          <HistoryIcon />
+                        </IconButton>
+                      </Tooltip>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() => setShowDoctorProfiles(true)}
+                      >
+                        Know More About Doctors
+                      </Button>
+                    </Box>
                   </Box>
-                )}
-                minDate={new Date()}
-                maxDate={addDays(new Date(), 7)}
-              />
 
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, p: 2, bgcolor: 'background.paper', borderRadius: 1 }}>
-                <PaymentIcon sx={{ mr: 1, color: 'primary.main' }} />
-                <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                  Consultation Fee: ₹{mockDoctors.find((d) => d.id === selectedDoctor)?.consultationFee || 0}
-                </Typography>
-              </Box>
-            </Paper>
-          </Grid>
+                  {showPatientHistory && (
+                    <Card sx={{ mb: 3, bgcolor: 'background.paper' }}>
+                      <CardContent>
+                        <Typography variant="subtitle1" gutterBottom>
+                          Previous Appointments
+                        </Typography>
+                        <List>
+                          <ListItem>
+                            <ListItemText
+                              primary="Dr. Smith - Cardiology"
+                              secondary="March 15, 2024 - Regular Check-up"
+                            />
+                          </ListItem>
+                          <ListItem>
+                            <ListItemText
+                              primary="Dr. Johnson - General Medicine"
+                              secondary="February 28, 2024 - Follow-up"
+                            />
+                          </ListItem>
+                        </List>
+                      </CardContent>
+                    </Card>
+                  )}
 
-          {/* Time Slots */}
-          <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 3 }}>
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
-                <ScheduleIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-                Available Time Slots
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                {format(selectedDate, 'EEEE, MMMM d, yyyy')}
-              </Typography>
-
-              <Grid container spacing={2}>
-                {getAvailableSlotsForDate(selectedDate).map((slot) => (
-                  <Grid item xs={12} sm={6} md={4} key={slot.id}>
-                    <ListItemButton
-                      onClick={() => handleSlotSelect(slot)}
-                      disabled={!slot.isAvailable}
-                      selected={selectedSlot?.id === slot.id}
-                      sx={{
-                        border: '1px solid',
-                        borderColor: selectedSlot?.id === slot.id ? 'primary.main' : 'divider',
-                        borderRadius: 2,
-                        mb: 1,
-                        opacity: slot.isAvailable ? 1 : 0.5,
-                        transition: 'all 0.2s',
-                        '&:hover': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: 2,
+                  <FormControl fullWidth sx={{ mb: 3 }}>
+                    <InputLabel>Doctor</InputLabel>
+                    <Select
+                      value={selectedDoctor}
+                      label="Doctor"
+                      onChange={handleDoctorSelect}
+                      MenuProps={{
+                        PaperProps: {
+                          sx: {
+                            maxHeight: 300,
+                          },
                         },
                       }}
                     >
-                      <ListItemText
-                        primary={
-                          <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                            {formatTime(slot.time)}
-                          </Typography>
-                        }
-                        secondary={
-                          slot.isAvailable ? (
-                            <Chip
-                              size="small"
-                              label="Available"
-                              color="success"
-                              icon={<AccessTimeIcon />}
-                              sx={{ mt: 1 }}
+                      {mockDoctors.map((doctor) => (
+                        <MenuItem key={doctor.id} value={doctor.id}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                            <Avatar
+                              src={doctor.image}
+                              sx={{ width: 56, height: 56, mr: 2 }}
                             />
-                          ) : (
-                            <Chip
-                              size="small"
-                              label="Unavailable"
-                              color="error"
-                              icon={<AccessTimeIcon />}
-                              sx={{ mt: 1 }}
-                            />
-                          )
-                        }
-                      />
-                    </ListItemButton>
-                  </Grid>
-                ))}
+                            <Box sx={{ flex: 1 }}>
+                              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                                {doctor.name}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                {doctor.specialization}
+                              </Typography>
+                              <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
+                                <Rating
+                                  value={doctor.rating}
+                                  precision={0.1}
+                                  readOnly
+                                  size="small"
+                                  sx={{ mr: 1 }}
+                                />
+                                <Typography variant="body2" color="text.secondary">
+                                  ({doctor.rating})
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </Box>
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  {/* Location Selection */}
+                  <FormControl fullWidth sx={{ mb: 3 }}>
+                    <InputLabel>Location</InputLabel>
+                    <Select
+                      value={selectedLocation}
+                      label="Location"
+                      onChange={handleLocationChange}
+                    >
+                      <MenuItem value="main">Main Hospital</MenuItem>
+                      <MenuItem value="branch1">North Branch</MenuItem>
+                      <MenuItem value="branch2">South Branch</MenuItem>
+                      <MenuItem value="branch3">East Branch</MenuItem>
+                    </Select>
+                  </FormControl>
+
+                  <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+                    <CalendarTodayIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                    Select Date
+                  </Typography>
+                  <DatePicker
+                    label="Date"
+                    value={selectedDate}
+                    onChange={handleDateChange}
+                    renderInput={(params) => (
+                      <Box sx={{ mb: 3 }}>
+                        <TextField {...params} fullWidth />
+                      </Box>
+                    )}
+                    minDate={new Date()}
+                    maxDate={addDays(new Date(), 7)}
+                  />
+
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, p: 2, bgcolor: 'background.paper', borderRadius: 1 }}>
+                    <PaymentIcon sx={{ mr: 1, color: 'primary.main' }} />
+                    <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                      Consultation Fee: ₹{mockDoctors.find((d) => d.id === selectedDoctor)?.consultationFee || 0}
+                    </Typography>
+                  </Box>
+                </Paper>
               </Grid>
-            </Paper>
-          </Grid>
-        </Grid>
+
+              {/* Time Slots */}
+              <Grid item xs={12} md={4}>
+                <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 3 }}>
+                  <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+                    <ScheduleIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                    Available Time Slots
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                    {format(selectedDate, 'EEEE, MMMM d, yyyy')}
+                  </Typography>
+
+                  <Grid container spacing={2}>
+                    {getAvailableSlotsForDate(selectedDate).map((slot) => (
+                      <Grid item xs={12} sm={6} md={4} key={slot.id}>
+                        <ListItemButton
+                          onClick={() => handleSlotSelect(slot)}
+                          disabled={!slot.isAvailable}
+                          selected={selectedSlot?.id === slot.id}
+                          sx={{
+                            border: '1px solid',
+                            borderColor: selectedSlot?.id === slot.id ? 'primary.main' : 'divider',
+                            borderRadius: 2,
+                            mb: 1,
+                            opacity: slot.isAvailable ? 1 : 0.5,
+                            transition: 'all 0.2s',
+                            '&:hover': {
+                              transform: 'translateY(-2px)',
+                              boxShadow: 2,
+                            },
+                          }}
+                        >
+                          <ListItemText
+                            primary={
+                              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                                {formatTime(slot.time)}
+                              </Typography>
+                            }
+                            secondary={
+                              slot.isAvailable ? (
+                                <Chip
+                                  size="small"
+                                  label="Available"
+                                  color="success"
+                                  icon={<AccessTimeIcon />}
+                                  sx={{ mt: 1 }}
+                                />
+                              ) : (
+                                <Chip
+                                  size="small"
+                                  label="Unavailable"
+                                  color="error"
+                                  icon={<AccessTimeIcon />}
+                                  sx={{ mt: 1 }}
+                                />
+                              )
+                            }
+                          />
+                        </ListItemButton>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Paper>
+              </Grid>
+            </Grid>
+          </>
+        ) : (
+          <>
+            <Box sx={{ mb: 3 }}>
+              <Button
+                variant="outlined"
+                startIcon={<ArrowBackIcon />}
+                onClick={() => setShowDoctorProfiles(false)}
+              >
+                Back to Appointment Booking
+              </Button>
+            </Box>
+            <DoctorProfiles onSelectDoctor={(doctor) => {
+              setSelectedDoctor(doctor.id);
+              setShowDoctorProfiles(false);
+            }} />
+          </>
+        )}
 
         {/* Enhanced Confirmation Dialog */}
         <Dialog 

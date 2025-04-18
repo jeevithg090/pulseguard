@@ -37,11 +37,10 @@ import {
   Delete as DeleteIcon,
   Map as MapIcon,
   NotificationsActive as NotificationsActiveIcon,
-  Bed as BedIcon,
-  Group as GroupIcon,
   Phone as PhoneIcon,
   Sms as SmsIcon,
 } from '@mui/icons-material';
+import HealthInsurance from './HealthInsurance';
 
 const PatientDashboard = () => {
   const navigate = useNavigate();
@@ -65,19 +64,6 @@ const PatientDashboard = () => {
       completed: false,
     },
   ]);
-  const [resourceStatus, setResourceStatus] = useState({
-    beds: {
-      total: 100,
-      available: 25,
-      occupied: 75,
-    },
-    staff: {
-      total: 50,
-      available: 35,
-      onBreak: 10,
-      offDuty: 5,
-    },
-  });
 
   const handleAddSymptom = () => {
     if (newSymptom.trim()) {
@@ -157,12 +143,6 @@ const PatientDashboard = () => {
     },
   ];
 
-  const healthMetrics = [
-    { label: 'Blood Pressure', value: '120/80', status: 'Normal' },
-    { label: 'Heart Rate', value: '72 bpm', status: 'Normal' },
-    { label: 'Blood Sugar', value: '95 mg/dL', status: 'Normal' },
-  ];
-
   const mapContainerStyle = {
     width: '100%',
     height: '400px'
@@ -197,7 +177,7 @@ const PatientDashboard = () => {
                       sx={{
                         backgroundColor: `${action.color}15`,
                         borderRadius: '50%',
-                        p: 1,
+                        p: 1.5,
                         mr: 2,
                       }}
                     >
@@ -217,211 +197,17 @@ const PatientDashboard = () => {
 
       {/* Main Content */}
       <Grid container spacing={3}>
-        {/* Health Metrics */}
-        <Grid item xs={12} md={6}>
-          <Paper sx={{ 
-            p: 3,
-            background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-            borderRadius: 2,
-            boxShadow: 3
-          }}>
-            <Typography variant="h4" gutterBottom sx={{ 
-              fontWeight: 'bold',
-              color: '#1a237e',
-              mb: 3
-            }}>
-              Health Metrics
-            </Typography>
-            <List>
-              {healthMetrics.map((metric, index) => (
-                <React.Fragment key={metric.label}>
-                  <ListItem sx={{ 
-                    py: 2,
-                    '&:hover': {
-                      backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                      borderRadius: 1
-                    }
-                  }}>
-                    <ListItemIcon>
-                      <TrendingUpIcon sx={{ color: '#1a237e' }} />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={
-                        <Typography variant="h6" sx={{ color: '#1a237e' }}>
-                          {metric.label}
-                        </Typography>
-                      }
-                      secondary={
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <Typography variant="h5" sx={{ 
-                            mr: 2,
-                            fontWeight: 'bold',
-                            color: metric.status === 'Normal' ? '#2e7d32' : '#d32f2f'
-                          }}>
-                            {metric.value}
-                          </Typography>
-                          <Chip
-                            label={metric.status}
-                            color={metric.status === 'Normal' ? 'success' : 'error'}
-                            size="small"
-                            sx={{ fontWeight: 'bold' }}
-                          />
-                        </Box>
-                      }
-                    />
-                  </ListItem>
-                  {index < healthMetrics.length - 1 && <Divider />}
-                </React.Fragment>
-              ))}
-            </List>
-          </Paper>
-
-          {/* Real-time Symptom Tracking */}
-          <Paper sx={{ 
-            p: 3,
-            mt: 3,
-            background: 'linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)',
-            borderRadius: 2,
-            boxShadow: 3
-          }}>
-            <Typography variant="h5" gutterBottom sx={{ 
-              fontWeight: 'bold',
-              color: '#e65100',
-              mb: 3
-            }}>
-              Symptom Tracker
-            </Typography>
-            <Box sx={{ display: 'flex', mb: 2 }}>
-              <TextField
-                fullWidth
-                variant="outlined"
-                placeholder="Enter your symptom..."
-                value={newSymptom}
-                onChange={(e) => setNewSymptom(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleAddSymptom()}
-                sx={{ mr: 1 }}
-              />
-              <Button
-                variant="contained"
-                onClick={handleAddSymptom}
-                sx={{
-                  backgroundColor: '#e65100',
-                  '&:hover': {
-                    backgroundColor: '#f57c00'
-                  }
-                }}
-              >
-                <AddIcon />
-              </Button>
-            </Box>
-            <List>
-              {symptoms.map((symptom) => (
-                <ListItem
-                  key={symptom.id}
-                  sx={{
-                    py: 1,
-                    '&:hover': {
-                      backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                      borderRadius: 1
-                    }
-                  }}
-                >
-                  <ListItemText
-                    primary={
-                      <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                        {symptom.text}
-                      </Typography>
-                    }
-                    secondary={
-                      <Typography variant="caption" color="text.secondary">
-                        Added at {symptom.timestamp}
-                      </Typography>
-                    }
-                  />
-                  <IconButton
-                    size="small"
-                    onClick={() => handleDeleteSymptom(symptom.id)}
-                    sx={{ color: '#e65100' }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </ListItem>
-              ))}
-            </List>
-          </Paper>
-        </Grid>
-
-        {/* Upcoming Appointments */}
-        <Grid item xs={12} md={6}>
-          <Paper sx={{ 
-            p: 3,
-            background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)',
-            borderRadius: 2,
-            boxShadow: 3
-          }}>
-            <Typography variant="h4" gutterBottom sx={{ 
-              fontWeight: 'bold',
-              color: '#0d47a1',
-              mb: 3
-            }}>
-              Upcoming Appointments
-            </Typography>
-            <List>
-              {upcomingAppointments.map((appointment, index) => (
-                <React.Fragment key={appointment.id}>
-                  <ListItem sx={{ 
-                    py: 2,
-                    '&:hover': {
-                      backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                      borderRadius: 1
-                    }
-                  }}>
-                    <ListItemIcon>
-                      <CalendarIcon sx={{ color: '#0d47a1' }} />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={
-                        <Typography variant="h6" sx={{ color: '#0d47a1' }}>
-                          {appointment.doctor}
-                        </Typography>
-                      }
-                      secondary={
-                        <>
-                          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                            {appointment.department}
-                          </Typography>
-                          <Typography variant="h6" sx={{ color: '#0d47a1' }}>
-                            {appointment.date} at {appointment.time}
-                          </Typography>
-                        </>
-                      }
-                    />
-                    <Button 
-                      variant="contained" 
-                      size="small"
-                      sx={{ 
-                        backgroundColor: '#0d47a1',
-                        '&:hover': {
-                          backgroundColor: '#1565c0'
-                        }
-                      }}
-                    >
-                      Reschedule
-                    </Button>
-                  </ListItem>
-                  {index < upcomingAppointments.length - 1 && <Divider />}
-                </React.Fragment>
-              ))}
-            </List>
-          </Paper>
-        </Grid>
-
         {/* Recent Messages */}
         <Grid item xs={12}>
           <Paper sx={{ p: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h6">Recent Messages</Typography>
-              <Button startIcon={<MessageIcon />} variant="outlined">
+              <Typography variant="h5">Recent Messages</Typography>
+              <Button 
+                startIcon={<MessageIcon />} 
+                variant="outlined"
+                color="primary"
+                onClick={() => navigate('/patient/messages')}
+              >
                 View All
               </Button>
             </Box>
@@ -449,92 +235,15 @@ const PatientDashboard = () => {
           </Paper>
         </Grid>
 
-        {/* Resource Status */}
-        <Grid item xs={12} md={6}>
-          <Paper sx={{ 
-            p: 3,
-            background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)',
-            borderRadius: 2,
-            boxShadow: 3
-          }}>
-            <Typography variant="h5" gutterBottom sx={{ 
-              fontWeight: 'bold',
-              color: '#1565c0',
-              mb: 3
-            }}>
-              Resource Status
-            </Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
-                <Paper sx={{ p: 2, background: 'white', borderRadius: 2 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <BedIcon sx={{ color: '#1565c0', mr: 1 }} />
-                    <Typography variant="h6">Bed Availability</Typography>
-                  </Box>
-                  <Box sx={{ mb: 1 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      Total Beds: {resourceStatus.beds.total}
-                    </Typography>
-                    <Typography variant="body2" color="success.main">
-                      Available: {resourceStatus.beds.available}
-                    </Typography>
-                    <Typography variant="body2" color="error.main">
-                      Occupied: {resourceStatus.beds.occupied}
-                    </Typography>
-                  </Box>
-                  <LinearProgress
-                    variant="determinate"
-                    value={(resourceStatus.beds.occupied / resourceStatus.beds.total) * 100}
-                    color={resourceStatus.beds.available < 10 ? 'error' : 'primary'}
-                    sx={{ height: 8, borderRadius: 4 }}
-                  />
-                </Paper>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Paper sx={{ p: 2, background: 'white', borderRadius: 2 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <GroupIcon sx={{ color: '#1565c0', mr: 1 }} />
-                    <Typography variant="h6">Staff Status</Typography>
-                  </Box>
-                  <Box sx={{ mb: 1 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      Total Staff: {resourceStatus.staff.total}
-                    </Typography>
-                    <Typography variant="body2" color="success.main">
-                      Available: {resourceStatus.staff.available}
-                    </Typography>
-                    <Typography variant="body2" color="warning.main">
-                      On Break: {resourceStatus.staff.onBreak}
-                    </Typography>
-                    <Typography variant="body2" color="error.main">
-                      Off Duty: {resourceStatus.staff.offDuty}
-                    </Typography>
-                  </Box>
-                  <LinearProgress
-                    variant="determinate"
-                    value={(resourceStatus.staff.available / resourceStatus.staff.total) * 100}
-                    color={resourceStatus.staff.available < 15 ? 'error' : 'primary'}
-                    sx={{ height: 8, borderRadius: 4 }}
-                  />
-                </Paper>
-              </Grid>
-            </Grid>
-          </Paper>
+        {/* Health Insurance Section */}
+        <Grid item xs={12}>
+          <HealthInsurance />
         </Grid>
 
         {/* Contact Support */}
         <Grid item xs={12}>
-          <Paper sx={{ 
-            p: 3,
-            background: 'linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%)',
-            borderRadius: 2,
-            boxShadow: 3
-          }}>
-            <Typography variant="h5" gutterBottom sx={{ 
-              fontWeight: 'bold',
-              color: '#c2185b',
-              mb: 3
-            }}>
+          <Paper sx={{ p: 3 }}>
+            <Typography variant="h5" gutterBottom>
               Contact Support
             </Typography>
             <Grid container spacing={2}>
@@ -544,12 +253,7 @@ const PatientDashboard = () => {
                   startIcon={<PhoneIcon />}
                   onClick={() => handleContactSupport('voice')}
                   fullWidth
-                  sx={{
-                    backgroundColor: '#c2185b',
-                    '&:hover': {
-                      backgroundColor: '#e91e63'
-                    }
-                  }}
+                  color="primary"
                 >
                   Call Support
                 </Button>
@@ -560,12 +264,7 @@ const PatientDashboard = () => {
                   startIcon={<SmsIcon />}
                   onClick={() => handleContactSupport('sms')}
                   fullWidth
-                  sx={{
-                    backgroundColor: '#c2185b',
-                    '&:hover': {
-                      backgroundColor: '#e91e63'
-                    }
-                  }}
+                  color="primary"
                 >
                   Text Support
                 </Button>
@@ -576,34 +275,22 @@ const PatientDashboard = () => {
 
         {/* Care Navigation */}
         <Grid item xs={12} md={6}>
-          <Paper sx={{ 
-            p: 3,
-            background: 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)',
-            borderRadius: 2,
-            boxShadow: 3
-          }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-              <Typography variant="h5" sx={{ 
-                fontWeight: 'bold',
-                color: '#2e7d32'
-              }}>
-                Care Navigation
-              </Typography>
+          <Paper sx={{ p: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h5">Care Navigation</Typography>
               <IconButton
                 onClick={handleReminderClick}
-                sx={{ 
-                  color: '#2e7d32',
-                  position: 'relative'
-                }}
+                color="primary"
+                sx={{ position: 'relative' }}
               >
-                <NotificationsActiveIcon />
+                <NotificationsIcon />
                 {reminders.filter(r => !r.completed).length > 0 && (
                   <Box
                     sx={{
                       position: 'absolute',
                       top: 0,
                       right: 0,
-                      backgroundColor: '#f44336',
+                      backgroundColor: 'error.main',
                       color: 'white',
                       borderRadius: '50%',
                       width: 20,
@@ -623,12 +310,8 @@ const PatientDashboard = () => {
               variant="contained"
               startIcon={<MapIcon />}
               onClick={handleMapClick}
-              sx={{
-                backgroundColor: '#2e7d32',
-                '&:hover': {
-                  backgroundColor: '#388e3c'
-                }
-              }}
+              color="primary"
+              fullWidth
             >
               Find Nearest Healthcare Facility
             </Button>
@@ -636,14 +319,8 @@ const PatientDashboard = () => {
 
           {/* Reminders Dropdown */}
           {showReminders && (
-            <Paper sx={{ 
-              p: 2,
-              mt: 2,
-              background: 'linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)',
-              borderRadius: 2,
-              boxShadow: 3
-            }}>
-              <Typography variant="h6" gutterBottom sx={{ color: '#e65100' }}>
+            <Paper sx={{ p: 3, mt: 2 }}>
+              <Typography variant="h6" gutterBottom>
                 Follow-up Reminders
               </Typography>
               <List>
@@ -662,7 +339,7 @@ const PatientDashboard = () => {
                       primary={
                         <Typography 
                           variant="body1" 
-                          sx={{ 
+                          sx={{
                             textDecoration: reminder.completed ? 'line-through' : 'none',
                             color: reminder.completed ? 'text.secondary' : 'text.primary'
                           }}
@@ -679,7 +356,7 @@ const PatientDashboard = () => {
                     <Checkbox
                       checked={reminder.completed}
                       onChange={() => handleReminderComplete(reminder.id)}
-                      sx={{ color: '#e65100' }}
+                      color="primary"
                     />
                   </ListItem>
                 ))}

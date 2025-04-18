@@ -21,8 +21,7 @@ import {
   CardContent,
   Grid,
   Alert,
-  Snackbar,
-  Container
+  Snackbar
 } from '@mui/material';
 import {
   Notifications as NotificationsIcon,
@@ -43,9 +42,9 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { format, addDays, isAfter, isBefore } from 'date-fns';
 
 const reminderTypes = [
-  { id: 'medication', label: 'Medication', icon: <MedicationIcon />, color: '#1976d2' },
-  { id: 'test', label: 'Test/Lab Work', icon: <TestIcon />, color: '#2e7d32' },
-  { id: 'appointment', label: 'Appointment', icon: <AppointmentIcon />, color: '#ed6c02' }
+  { id: 'medication', label: 'Medication', icon: <MedicationIcon /> },
+  { id: 'test', label: 'Test/Lab Work', icon: <TestIcon /> },
+  { id: 'appointment', label: 'Appointment', icon: <AppointmentIcon /> }
 ];
 
 const repeatOptions = [
@@ -55,7 +54,7 @@ const repeatOptions = [
   { value: 'monthly', label: 'Monthly' }
 ];
 
-const FollowUpReminders = () => {
+const ReminderSystem = () => {
   const [reminders, setReminders] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -66,18 +65,12 @@ const FollowUpReminders = () => {
   const [notificationEnabled, setNotificationEnabled] = useState(true);
   const [notificationSnackbar, setNotificationSnackbar] = useState(false);
   const [editingReminder, setEditingReminder] = useState(null);
-  const [notificationMessage, setNotificationMessage] = useState('');
 
   // Load reminders from localStorage on component mount
   useEffect(() => {
     const savedReminders = localStorage.getItem('reminders');
     if (savedReminders) {
       setReminders(JSON.parse(savedReminders));
-    }
-    
-    // Request notification permission on component mount
-    if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
-      Notification.requestPermission();
     }
   }, []);
 
@@ -96,7 +89,7 @@ const FollowUpReminders = () => {
           // Show notification
           if (Notification.permission === 'granted') {
             new Notification(reminder.title, {
-              body: `Time for your ${reminderTypes.find(t => t.id === reminder.type)?.label}: ${reminder.title}`,
+              body: `Time for your ${reminder.type}: ${reminder.title}`,
               icon: '/notification-icon.png'
             });
           }
@@ -107,7 +100,6 @@ const FollowUpReminders = () => {
           ));
           
           // Show snackbar
-          setNotificationMessage(`Time for your ${reminder.title}!`);
           setNotificationSnackbar(true);
           
           // If repeating reminder, create next occurrence
@@ -167,20 +159,20 @@ const FollowUpReminders = () => {
       setReminders(prev => prev.map(r => 
         r.id === editingReminder.id ? newReminder : r
       ));
-      setNotificationMessage('Reminder updated successfully!');
     } else {
       setReminders(prev => [...prev, newReminder]);
-      setNotificationMessage('New reminder added successfully!');
     }
 
-    setNotificationSnackbar(true);
+    // Request notification permission if enabled
+    if (notificationEnabled && Notification.permission !== 'granted') {
+      Notification.requestPermission();
+    }
+
     handleCloseDialog();
   };
 
   const handleDeleteReminder = (id) => {
     setReminders(prev => prev.filter(r => r.id !== id));
-    setNotificationMessage('Reminder deleted successfully!');
-    setNotificationSnackbar(true);
   };
 
   const handleEditReminder = (reminder) => {
@@ -216,118 +208,87 @@ const FollowUpReminders = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <Container maxWidth="lg">
-        <Box sx={{ py: 4 }}>
-          <Paper elevation={3} sx={{ p: 4 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <NotificationsIcon fontSize="large" />
-                <Typography variant="h4">Follow-up Reminders</Typography>
-              </Box>
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={() => setOpenDialog(true)}
-                size="large"
-              >
-                ADD REMINDER
-              </Button>
-            </Box>
-
-            <Grid container spacing={3}>
-              {reminders
-                .sort((a, b) => new Date(a.datetime) - new Date(b.datetime))
-                .map((reminder) => (
-                <Grid item xs={12} sm={6} md={4} key={reminder.id}>
-                  <Card 
-                    sx={{ 
-                      position: 'relative',
-                      borderLeft: `4px solid ${reminderTypes.find(t => t.id === reminder.type)?.color}`,
-                      '&:hover': { 
-                        transform: 'translateY(-2px)', 
-                        transition: 'transform 0.2s',
-                        boxShadow: 4
-                      }
-                    }}
-                  >
-                    <CardContent>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                        <Typography variant="h6" component="div" sx={{ color: reminderTypes.find(t => t.id === reminder.type)?.color }}>
-                          {reminder.title}
-                        </Typography>
-                        <Chip
-                          icon={reminderTypes.find(t => t.id === reminder.type)?.icon}
-                          label={reminderTypes.find(t => t.id === reminder.type)?.label}
-                          color={getReminderColor(reminder)}
-                          size="small"
-                        />
-                      </Box>
-                      
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                        <AccessTimeIcon fontSize="small" />
-                        <Typography variant="body2">
-                          {format(new Date(reminder.datetime), 'h:mm a')}
-                        </Typography>
-                      </Box>
-                      
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                        <CalendarTodayIcon fontSize="small" />
-                        <Typography variant="body2">
-                          {format(new Date(reminder.datetime), 'MMM d, yyyy')}
-                        </Typography>
-                      </Box>
-
-                      {reminder.repeat !== 'none' && (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <RepeatIcon fontSize="small" />
-                          <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
-                            Repeats {reminder.repeat}
-                          </Typography>
-                        </Box>
-                      )}
-
-                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, gap: 1 }}>
-                        <IconButton 
-                          size="small" 
-                          onClick={() => handleEditReminder(reminder)}
-                          color="primary"
-                        >
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton 
-                          size="small" 
-                          onClick={() => handleDeleteReminder(reminder.id)}
-                          color="error"
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-
-            {reminders.length === 0 && (
-              <Box sx={{ textAlign: 'center', py: 8 }}>
-                <NotificationsActiveIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
-                <Typography variant="h6" color="text.secondary">
-                  No reminders yet
-                </Typography>
-                <Typography color="text.secondary" sx={{ mb: 3 }}>
-                  Click the "Add Reminder" button to create your first reminder
-                </Typography>
-                <Button
-                  variant="outlined"
-                  startIcon={<AddIcon />}
-                  onClick={() => setOpenDialog(true)}
-                >
-                  Add Your First Reminder
-                </Button>
-              </Box>
-            )}
-          </Paper>
+      <Box sx={{ p: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <NotificationsIcon />
+            <Typography variant="h5">Reminders</Typography>
+          </Box>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setOpenDialog(true)}
+          >
+            ADD REMINDER
+          </Button>
         </Box>
+
+        <Grid container spacing={2}>
+          {reminders.sort((a, b) => new Date(a.datetime) - new Date(b.datetime)).map((reminder) => (
+            <Grid item xs={12} sm={6} md={4} key={reminder.id}>
+              <Card 
+                sx={{ 
+                  position: 'relative',
+                  '&:hover': { transform: 'translateY(-2px)', transition: 'transform 0.2s' }
+                }}
+              >
+                <CardContent>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography variant="h6" component="div">
+                      {reminder.title}
+                    </Typography>
+                    <Chip
+                      icon={reminderTypes.find(t => t.id === reminder.type)?.icon}
+                      label={reminderTypes.find(t => t.id === reminder.type)?.label}
+                      color={getReminderColor(reminder)}
+                      size="small"
+                    />
+                  </Box>
+                  
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                    <AccessTimeIcon fontSize="small" />
+                    <Typography variant="body2">
+                      {format(new Date(reminder.datetime), 'h:mm a')}
+                    </Typography>
+                  </Box>
+                  
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                    <CalendarTodayIcon fontSize="small" />
+                    <Typography variant="body2">
+                      {format(new Date(reminder.datetime), 'MMM d, yyyy')}
+                    </Typography>
+                  </Box>
+
+                  {reminder.repeat !== 'none' && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <RepeatIcon fontSize="small" />
+                      <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
+                        Repeats {reminder.repeat}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, gap: 1 }}>
+                    <IconButton 
+                      size="small" 
+                      onClick={() => handleEditReminder(reminder)}
+                      color="primary"
+                    >
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton 
+                      size="small" 
+                      onClick={() => handleDeleteReminder(reminder.id)}
+                      color="error"
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
 
         <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
           <DialogTitle>
@@ -340,7 +301,6 @@ const FollowUpReminders = () => {
                 fullWidth
                 value={reminderTitle}
                 onChange={(e) => setReminderTitle(e.target.value)}
-                placeholder="Enter reminder title..."
               />
 
               <FormControl fullWidth>
@@ -366,7 +326,6 @@ const FollowUpReminders = () => {
                 value={selectedDate}
                 onChange={setSelectedDate}
                 renderInput={(params) => <TextField {...params} fullWidth />}
-                minDate={new Date()}
               />
 
               <TimePicker
@@ -418,20 +377,18 @@ const FollowUpReminders = () => {
           open={notificationSnackbar}
           autoHideDuration={6000}
           onClose={() => setNotificationSnackbar(false)}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         >
           <Alert 
             onClose={() => setNotificationSnackbar(false)} 
             severity="info" 
-            variant="filled"
             sx={{ width: '100%' }}
           >
-            {notificationMessage}
+            You have a reminder due!
           </Alert>
         </Snackbar>
-      </Container>
+      </Box>
     </LocalizationProvider>
   );
 };
 
-export default FollowUpReminders; 
+export default ReminderSystem; 
