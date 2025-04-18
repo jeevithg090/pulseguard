@@ -7,11 +7,12 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 // Layout Components
 import Header from './components/layout/Header';
+import HomePage from './components/HomePage';
 
 // Patient Interface Components
 import PatientDashboard from './components/patient/Dashboard';
-import SymptomForm from './components/patient/SymptomForm';
-import CareNavigation from './components/patient/CareNavigation';
+import SymptomReport from './components/patient/SymptomReport';
+import HealthcareFacilitySearch from './components/patient/HealthcareFacilitySearch';
 import FollowUpReminders from './components/patient/FollowUpReminders';
 import AppointmentBooking from './components/patient/AppointmentBooking';
 
@@ -64,10 +65,13 @@ function App() {
         <Router>
           <Header />
           <Routes>
+            {/* Home Route */}
+            <Route path="/" element={<HomePage />} />
+
             {/* Patient Routes */}
             <Route path="/patient" element={<PatientDashboard />} />
-            <Route path="/patient/symptoms" element={<SymptomForm />} />
-            <Route path="/patient/care-navigation" element={<CareNavigation />} />
+            <Route path="/patient/symptoms" element={<SymptomReport />} />
+            <Route path="/patient/care-navigation" element={<HealthcareFacilitySearch />} />
             <Route path="/patient/reminders" element={<FollowUpReminders />} />
             <Route path="/patient/book-appointment" element={<AppointmentBooking />} />
 

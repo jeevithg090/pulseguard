@@ -70,8 +70,8 @@ const CareNavigation = () => {
   });
 
   const handleGetDirections = (address) => {
-    // In a real app, this would open Google Maps or similar
-    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`, '_blank');
+    // Open default maps application
+    window.open(`https://www.openstreetmap.org/search?query=${encodeURIComponent(address)}`, '_blank');
   };
 
   return (

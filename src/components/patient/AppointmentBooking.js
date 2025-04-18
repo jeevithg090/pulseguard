@@ -72,6 +72,7 @@ const mockDoctors = [
     image: 'https://i.pravatar.cc/150?img=1',
     location: 'Main Hospital, Floor 3',
     availableToday: true,
+    consultationFee: 1500,
   },
   {
     id: 2,
@@ -83,6 +84,7 @@ const mockDoctors = [
     image: 'https://i.pravatar.cc/150?img=2',
     location: 'Main Hospital, Floor 2',
     availableToday: true,
+    consultationFee: 1000,
   },
   {
     id: 3,
@@ -94,6 +96,7 @@ const mockDoctors = [
     image: 'https://i.pravatar.cc/150?img=3',
     location: 'Children\'s Wing, Floor 1',
     availableToday: false,
+    consultationFee: 1200,
   },
 ];
 
@@ -225,7 +228,7 @@ const AppointmentBooking = () => {
 
         <Grid container spacing={3}>
           {/* Appointment Type Selection */}
-          <Grid item xs={12}>
+          <Grid item xs={12} md={4}>
             <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 3, mb: 3 }}>
               <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
                 Appointment Type
@@ -247,7 +250,7 @@ const AppointmentBooking = () => {
                 </ToggleButton>
               </ToggleButtonGroup>
 
-              <FormControl fullWidth>
+              <FormControl fullWidth sx={{ mb: 2 }}>
                 <InputLabel>Consultation Type</InputLabel>
                 <Select
                   value={consultationType}
@@ -380,11 +383,18 @@ const AppointmentBooking = () => {
                 minDate={new Date()}
                 maxDate={addDays(new Date(), 7)}
               />
+
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, p: 2, bgcolor: 'background.paper', borderRadius: 1 }}>
+                <PaymentIcon sx={{ mr: 1, color: 'primary.main' }} />
+                <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                  Consultation Fee: ₹{mockDoctors.find((d) => d.id === selectedDoctor)?.consultationFee || 0}
+                </Typography>
+              </Box>
             </Paper>
           </Grid>
 
           {/* Time Slots */}
-          <Grid item xs={12} md={8}>
+          <Grid item xs={12} md={4}>
             <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 3 }}>
               <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
                 <ScheduleIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
@@ -520,6 +530,17 @@ const AppointmentBooking = () => {
                       </Box>
                     }
                     secondary={appointmentType === 'in-person' ? 'In-Person Consultation' : 'Video Consultation'}
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText
+                    primary={
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <PaymentIcon sx={{ mr: 1, color: 'primary.main' }} />
+                        <Typography variant="subtitle1">Consultation Fee</Typography>
+                      </Box>
+                    }
+                    secondary={`₹${mockDoctors.find((d) => d.id === selectedDoctor)?.consultationFee || 0}`}
                   />
                 </ListItem>
               </List>
