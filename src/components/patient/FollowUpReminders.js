@@ -77,7 +77,12 @@ const FollowUpReminders = () => {
     
     // Request notification permission on component mount
     if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
-      Notification.requestPermission();
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          setNotificationMessage('Notifications enabled!');
+          setNotificationSnackbar(true);
+        }
+      });
     }
   }, []);
 
@@ -86,7 +91,7 @@ const FollowUpReminders = () => {
     localStorage.setItem('reminders', JSON.stringify(reminders));
   }, [reminders]);
 
-  // Check for due reminders every minute
+  // Check for due reminders every 30 seconds
   useEffect(() => {
     const checkReminders = () => {
       const now = new Date();
@@ -94,10 +99,11 @@ const FollowUpReminders = () => {
         const reminderTime = new Date(reminder.datetime);
         if (!reminder.notified && isAfter(now, reminderTime)) {
           // Show notification
-          if (Notification.permission === 'granted') {
+          if (Notification.permission === 'granted' && reminder.notificationEnabled) {
             new Notification(reminder.title, {
               body: `Time for your ${reminderTypes.find(t => t.id === reminder.type)?.label}: ${reminder.title}`,
-              icon: '/notification-icon.png'
+              icon: '/notification-icon.png',
+              requireInteraction: true // Keep notification visible until user interacts
             });
           }
           
@@ -118,7 +124,7 @@ const FollowUpReminders = () => {
       });
     };
 
-    const interval = setInterval(checkReminders, 60000); // Check every minute
+    const interval = setInterval(checkReminders, 30000); // Check every 30 seconds
     return () => clearInterval(interval);
   }, [reminders]);
 
