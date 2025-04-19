@@ -11,3 +11,27 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Leaflet map styles */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+}
+
+.leaflet-popup-content {
+  margin: 8px;
+}
+
+.leaflet-popup-content h3 {
+  margin: 0 0 8px 0;
+  color: #1976d2;
+}
+
+.leaflet-popup-content p {
+  margin: 4px 0;
+}
+
+.leaflet-popup-content ul {
+  margin: 4px 0;
+  padding-left: 20px;
+}

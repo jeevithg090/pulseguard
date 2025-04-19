@@ -16,6 +16,7 @@ import HealthcareFacilitySearch from './components/patient/HealthcareFacilitySea
 import FollowUpReminders from './components/patient/FollowUpReminders';
 import AppointmentBooking from './components/patient/AppointmentBooking';
 import AllMessages from './components/patient/AllMessages';
+import CareNavigation from './components/patient/CareNavigation';
 
 // Hospital Interface Components
 import HospitalDashboard from './components/hospital/Dashboard';
@@ -133,6 +134,7 @@ function App() {
             <Route path="/patient/facilities" element={<HealthcareFacilitySearch />} />
             <Route path="/patient/reminders" element={<FollowUpReminders />} />
             <Route path="/patient/book-appointment" element={<AppointmentBooking />} />
+            <Route path="/patient/care-navigation" element={<CareNavigation />} />
 
             {/* Hospital Routes */}
             <Route path="/hospital" element={<HospitalDashboard />} />

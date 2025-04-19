@@ -49,179 +49,131 @@ import NearMeIcon from '@mui/icons-material/NearMe';
 import TimerIcon from '@mui/icons-material/Timer';
 import TodayIcon from '@mui/icons-material/Today';
 import { StyledCard, cardContentStyles, cardGridItemStyles, facilityCardStyles } from '../common/CardStyles';
+import FacilityMap from '../FacilityMap';
 
-// Mock data for healthcare facilities
+// Add this utility function at the top of the file, after the imports
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  const R = 6371; // Radius of the Earth in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const d = R * c; // Distance in km
+  return d * 0.621371; // Convert to miles
+};
+
+// Update the mockFacilities array to use Bangalore coordinates
 const mockFacilities = [
   {
     id: 1,
-    name: 'City General Hospital',
-    type: 'Hospital',
-    address: '123 Medical Center Dr, City, State 12345',
-    phone: '(555) 123-4567',
+    name: "Manipal Hospital",
+    type: "Hospital",
+    position: [12.9716, 77.5946], // Bangalore coordinates
+    address: "98, HAL Airport Road, Kodihalli",
     waitTime: 15,
     rating: 4.5,
     reviews: 528,
-    distance: 0.8,
-    services: ['Emergency', 'General Medicine', 'Pediatrics', 'Surgery', 'Cardiology'],
-    insurance: ['Medicare', 'Blue Cross', 'Aetna', 'UnitedHealth', 'Cigna'],
+    distance: null,
+    services: ["Emergency", "General Medicine", "Pediatrics", "Surgery", "Cardiology"],
+    insurance: ["Medicare", "Blue Cross", "Aetna", "UnitedHealth", "Cigna"],
     verified: true,
     image: 'https://example.com/hospital1.jpg',
     availability: {
       today: true,
       nextAvailable: 'Today',
     },
-    specialFeatures: ['24/7 Emergency', 'Parking Available', 'Wheelchair Accessible', 'Helipad', 'ICU'],
+    specialFeatures: ['24/7 Emergency', 'Parking Available', 'Wheelchair Accessible']
   },
   {
     id: 2,
-    name: 'Community Health Clinic',
-    type: 'Clinic',
-    address: '456 Health Ave, City, State 12345',
-    phone: '(555) 234-5678',
-    waitTime: 30,
-    rating: 4.2,
-    reviews: 342,
-    distance: 1.2,
-    services: ['Primary Care', 'Women\'s Health', 'Pediatrics', 'Vaccinations', 'Lab Tests'],
-    insurance: ['Medicare', 'Medicaid', 'Blue Cross', 'Kaiser'],
-    verified: true,
-    image: 'https://example.com/clinic1.jpg',
-    availability: {
-      today: true,
-      nextAvailable: 'Today',
-    },
-    specialFeatures: ['Same-day Appointments', 'Multilingual Staff', 'Online Portal'],
-  },
-  {
-    id: 3,
-    name: 'Rapid Care Urgent Center',
-    type: 'Urgent Care',
-    address: '789 Care St, City, State 12345',
-    phone: '(555) 345-6789',
-    waitTime: 45,
-    rating: 4.0,
-    reviews: 215,
-    distance: 2.5,
-    services: ['Urgent Care', 'Minor Injuries', 'X-Ray', 'Lab Services', 'COVID Testing'],
-    insurance: ['Medicare', 'Blue Cross', 'Aetna', 'UnitedHealth'],
-    verified: true,
-    image: 'https://example.com/urgent1.jpg',
-    availability: {
-      today: true,
-      nextAvailable: 'Today',
-    },
-    specialFeatures: ['Walk-ins Welcome', 'Virtual Check-in', 'On-site Pharmacy'],
-  },
-  {
-    id: 4,
-    name: 'Wellness Family Practice',
-    type: 'Clinic',
-    address: '321 Wellness Blvd, City, State 12345',
-    phone: '(555) 456-7890',
+    name: "Apollo Hospital",
+    type: "Hospital",
+    position: [12.9667, 77.5667],
+    address: "154/11, Bannerghatta Road",
     waitTime: 20,
-    rating: 4.8,
-    reviews: 189,
-    distance: 1.8,
-    services: ['Family Medicine', 'Preventive Care', 'Mental Health', 'Nutrition Counseling'],
-    insurance: ['Blue Cross', 'Aetna', 'Cigna', 'UnitedHealth'],
-    verified: true,
-    image: 'https://example.com/clinic2.jpg',
-    availability: {
-      today: false,
-      nextAvailable: 'Tomorrow',
-    },
-    specialFeatures: ['Evening Hours', 'Telehealth', 'Family-friendly'],
-  },
-  {
-    id: 5,
-    name: 'Metropolitan Medical Center',
-    type: 'Hospital',
-    address: '555 Metro Ave, City, State 12345',
-    phone: '(555) 567-8901',
-    waitTime: 25,
-    rating: 4.3,
-    reviews: 892,
-    distance: 3.2,
-    services: ['Emergency', 'Surgery', 'Oncology', 'Neurology', 'Orthopedics', 'Maternity'],
-    insurance: ['Medicare', 'Medicaid', 'Blue Cross', 'Aetna', 'UnitedHealth', 'Kaiser'],
+    rating: 4.7,
+    reviews: 342,
+    distance: null,
+    services: ["Emergency", "General Medicine", "Pediatrics", "Surgery", "Cardiology"],
+    insurance: ["Medicare", "Blue Cross", "Aetna", "UnitedHealth", "Cigna"],
     verified: true,
     image: 'https://example.com/hospital2.jpg',
     availability: {
       today: true,
       nextAvailable: 'Today',
     },
-    specialFeatures: ['Level 1 Trauma Center', 'Research Facility', 'Teaching Hospital', 'Robotic Surgery'],
+    specialFeatures: ['24/7 Emergency', 'Parking Available', 'Wheelchair Accessible']
   },
   {
-    id: 6,
-    name: 'Pediatric Plus Care',
-    type: 'Specialty Center',
-    address: '234 Kids Way, City, State 12345',
-    phone: '(555) 678-9012',
-    waitTime: 15,
-    rating: 4.9,
-    reviews: 156,
-    distance: 2.1,
-    services: ['Pediatrics', 'Child Psychology', 'Pediatric Dentistry', 'Child Development'],
-    insurance: ['Blue Cross', 'Aetna', 'UnitedHealth', 'Cigna'],
+    id: 3,
+    name: "Fortis Hospital",
+    type: "Hospital",
+    position: [12.9617, 77.6447],
+    address: "154/9, Bannerghatta Road",
+    waitTime: 25,
+    rating: 4.6,
+    reviews: 215,
+    distance: null,
+    services: ["Emergency", "General Medicine", "Pediatrics", "Surgery", "Cardiology"],
+    insurance: ["Medicare", "Blue Cross", "Aetna", "UnitedHealth", "Cigna"],
     verified: true,
-    image: 'https://example.com/peds1.jpg',
+    image: 'https://example.com/hospital3.jpg',
     availability: {
-      today: false,
-      nextAvailable: '2 days',
+      today: true,
+      nextAvailable: 'Today',
     },
-    specialFeatures: ['Child-friendly Environment', 'Play Area', 'Specialized Equipment'],
+    specialFeatures: ['24/7 Emergency', 'Parking Available', 'Wheelchair Accessible']
   },
   {
-    id: 7,
-    name: 'Express Diagnostic Center',
-    type: 'Diagnostic Center',
-    address: '876 Test Rd, City, State 12345',
-    phone: '(555) 789-0123',
+    id: 4,
+    name: "Narayana Health City",
+    type: "Hospital",
+    position: [12.8917, 77.6028],
+    address: "258/A, Bommasandra Industrial Area",
+    waitTime: 30,
+    rating: 4.8,
+    reviews: 189,
+    distance: null,
+    services: ["Emergency", "General Medicine", "Pediatrics", "Surgery", "Cardiology"],
+    insurance: ["Medicare", "Blue Cross", "Aetna", "UnitedHealth", "Cigna"],
+    verified: true,
+    image: 'https://example.com/hospital4.jpg',
+    availability: {
+      today: true,
+      nextAvailable: 'Today',
+    },
+    specialFeatures: ['24/7 Emergency', 'Parking Available', 'Wheelchair Accessible']
+  },
+  {
+    id: 5,
+    name: "Columbia Asia Hospital",
+    type: "Hospital",
+    position: [12.9784, 77.6408],
+    address: "26/4, Brigade Gateway, Malleshwaram",
     waitTime: 10,
     rating: 4.4,
-    reviews: 234,
-    distance: 1.5,
-    services: ['X-Ray', 'MRI', 'CT Scan', 'Ultrasound', 'Blood Work', 'EKG'],
-    insurance: ['Medicare', 'Blue Cross', 'Aetna', 'UnitedHealth'],
+    reviews: 892,
+    distance: null,
+    services: ["Emergency", "General Medicine", "Pediatrics", "Surgery", "Cardiology"],
+    insurance: ["Medicare", "Blue Cross", "Aetna", "UnitedHealth", "Cigna"],
     verified: true,
-    image: 'https://example.com/diag1.jpg',
+    image: 'https://example.com/hospital5.jpg',
     availability: {
       today: true,
       nextAvailable: 'Today',
     },
-    specialFeatures: ['Same-day Results', 'Online Results Portal', 'Extended Hours'],
-  },
-  {
-    id: 8,
-    name: 'HealthPlus Pharmacy',
-    type: 'Pharmacy',
-    address: '432 Medicine Lane, City, State 12345',
-    phone: '(555) 890-1234',
-    waitTime: 5,
-    rating: 4.6,
-    reviews: 423,
-    distance: 0.5,
-    services: ['Prescription Filling', 'Vaccinations', 'Health Screenings', 'Medical Supplies'],
-    insurance: ['Medicare Part D', 'Blue Cross', 'Aetna', 'UnitedHealth', 'Cigna'],
-    verified: true,
-    image: 'https://example.com/pharm1.jpg',
-    availability: {
-      today: true,
-      nextAvailable: 'Today',
-    },
-    specialFeatures: ['Drive-thru Service', '24/7 Operation', 'Medication Counseling', 'Home Delivery'],
+    specialFeatures: ['24/7 Emergency', 'Parking Available', 'Wheelchair Accessible']
   }
 ];
 
 const facilityTypes = [
-  'All Types',
-  'Hospital',
-  'Clinic',
-  'Urgent Care',
-  'Specialty Center',
-  'Diagnostic Center',
-  'Pharmacy',
+  { value: 'all', label: 'All Types' },
+  { value: 'hospital', label: 'Hospital' },
+  { value: 'clinic', label: 'Clinic' },
+  { value: 'urgent', label: 'Urgent Care' }
 ];
 
 const sortOptions = [
@@ -233,8 +185,9 @@ const sortOptions = [
 
 const HealthcareFacilitySearch = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedType, setSelectedType] = useState('All Types');
-  const [facilities, setFacilities] = useState(mockFacilities);
+  const [selectedType, setSelectedType] = useState('all');
+  const [userLocation, setUserLocation] = useState(null);
+  const [localFacilities, setLocalFacilities] = useState(mockFacilities);
   const [sortBy, setSortBy] = useState('distance');
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [filters, setFilters] = useState({
@@ -248,9 +201,27 @@ const HealthcareFacilitySearch = () => {
   const [selectedFacility, setSelectedFacility] = useState(null);
   const [facilityDialogOpen, setFacilityDialogOpen] = useState(false);
 
-  // Add sorting effect
+  // Add this function to handle location updates
+  const handleLocationUpdate = (location) => {
+    setUserLocation(location);
+    
+    // Update facilities with calculated distances
+    const facilitiesWithDistances = mockFacilities.map(facility => ({
+      ...facility,
+      distance: calculateDistance(
+        location[0], location[1],
+        facility.position[0], facility.position[1]
+      ).toFixed(1)
+    }));
+
+    // Sort facilities by distance
+    const sortedFacilities = facilitiesWithDistances.sort((a, b) => a.distance - b.distance);
+    setLocalFacilities(sortedFacilities);
+  };
+
+  // Update the useEffect for sorting to use localFacilities
   useEffect(() => {
-    const sortedFacilities = [...facilities].sort((a, b) => {
+    const sortedFacilities = [...localFacilities].sort((a, b) => {
       switch (sortBy) {
         case 'distance':
           return a.distance - b.distance;
@@ -259,7 +230,6 @@ const HealthcareFacilitySearch = () => {
         case 'waitTime':
           return a.waitTime - b.waitTime;
         case 'availability':
-          // Sort by availability (today first, then by next available date)
           if (a.availability.today && !b.availability.today) return -1;
           if (!a.availability.today && b.availability.today) return 1;
           return a.availability.nextAvailable.localeCompare(b.availability.nextAvailable);
@@ -267,17 +237,51 @@ const HealthcareFacilitySearch = () => {
           return 0;
       }
     });
-    setFacilities(sortedFacilities);
+    setLocalFacilities(sortedFacilities);
   }, [sortBy]);
 
+  // Update the search handler to filter localFacilities
   const handleSearch = (event) => {
     setSearchQuery(event.target.value);
-    // Implement search logic here
+    const query = event.target.value.toLowerCase();
+    
+    const filteredFacilities = mockFacilities
+      .map(facility => ({
+        ...facility,
+        distance: userLocation ? calculateDistance(
+          userLocation[0], userLocation[1],
+          facility.position[0], facility.position[1]
+        ).toFixed(1) : null
+      }))
+      .filter(facility => 
+        facility.name.toLowerCase().includes(query) ||
+        facility.type.toLowerCase().includes(query) ||
+        facility.services.some(service => service.toLowerCase().includes(query))
+      )
+      .sort((a, b) => a.distance - b.distance);
+    
+    setLocalFacilities(filteredFacilities);
   };
 
+  // Update the facility type filter
   const handleTypeChange = (event) => {
     setSelectedType(event.target.value);
-    // Implement filter logic here
+    const type = event.target.value;
+    
+    const filteredFacilities = mockFacilities
+      .map(facility => ({
+        ...facility,
+        distance: userLocation ? calculateDistance(
+          userLocation[0], userLocation[1],
+          facility.position[0], facility.position[1]
+        ).toFixed(1) : null
+      }))
+      .filter(facility => 
+        type === 'all' || facility.type.toLowerCase() === type.toLowerCase()
+      )
+      .sort((a, b) => a.distance - b.distance);
+    
+    setLocalFacilities(filteredFacilities);
   };
 
   const handleSortChange = (event) => {
@@ -306,59 +310,59 @@ const HealthcareFacilitySearch = () => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      {/* Search Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-          Find Healthcare Facilities
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
-            <TextField
-              fullWidth
-              placeholder="Search facilities"
-              value={searchQuery}
-              onChange={handleSearch}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
+      <Typography variant="h4" gutterBottom>
+        Find Healthcare Facilities
+      </Typography>
+      
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} md={8}>
+          <TextField
+            fullWidth
+            placeholder="Search facilities"
+            value={searchQuery}
+            onChange={handleSearch}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={handleSearch}>
                     <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ bgcolor: 'background.paper', borderRadius: 1 }}
-            />
-          </Grid>
-          <Grid item xs={12} md={3}>
-            <FormControl fullWidth>
-              <InputLabel>Facility Type</InputLabel>
-              <Select
-                value={selectedType}
-                label="Facility Type"
-                onChange={handleTypeChange}
-              >
-                {facilityTypes.map((type) => (
-                  <MenuItem key={type} value={type}>{type}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} md={3}>
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={<FilterListIcon />}
-              onClick={() => setFilterDialogOpen(true)}
-            >
-              Filters
-            </Button>
-          </Grid>
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
         </Grid>
-      </Box>
+        <Grid item xs={12} md={4}>
+          <TextField
+            select
+            fullWidth
+            label="Facility Type"
+            value={selectedType}
+            onChange={handleTypeChange}
+          >
+            {facilityTypes.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <FacilityMap 
+            facilities={localFacilities}
+            onLocationUpdate={handleLocationUpdate}
+          />
+        </Grid>
+      </Grid>
 
       {/* Sort and Results Count */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="body1">
-          {facilities.length} facilities found
+          {localFacilities.length} facilities found
+          {userLocation && " near you"}
         </Typography>
         <FormControl sx={{ minWidth: 200 }}>
           <Select
@@ -409,7 +413,7 @@ const HealthcareFacilitySearch = () => {
 
       {/* Facility Cards */}
       <Grid container spacing={3}>
-        {facilities.map((facility) => (
+        {localFacilities.map((facility) => (
           <Grid item xs={12} key={facility.id} sx={cardGridItemStyles}>
             <StyledCard>
               <CardContent sx={cardContentStyles}>

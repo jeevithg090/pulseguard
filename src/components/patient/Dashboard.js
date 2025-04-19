@@ -81,7 +81,7 @@ const PatientDashboard = () => {
   };
 
   const handleMapClick = () => {
-    setShowMap(true);
+    navigate('/patient/care-navigation');
   };
 
   const handleReminderClick = () => {
